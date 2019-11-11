@@ -35,6 +35,10 @@ params.annot = "$baseDir/data/ggal/ggal_1_48850000_49020000.bed.gff"
 params.genome = "$baseDir/data/ggal/ggal_1_48850000_49020000.Ggal71.500bpflank.fa"
 params.outdir = 'results'
 
+
+/*
+* ?? What is the purpose of this?
+*/
 log.info """\
          R N A T O Y   P I P E L I N E    
          =============================
@@ -54,6 +58,8 @@ annotation_file = file(params.annot)
 /*
  * Create the `read_pairs` channel that emits tuples containing three elements:
  * the pair ID, the first read-pair file and the second read-pair file 
+ * see https://www.nextflow.io/docs/latest/channel.html?highlight=fromfilepairs#fromfilepairs
+ * Q: What does this do if one/some of the files are missing their pair?
  */
 Channel
     .fromFilePairs( params.reads )
@@ -62,6 +68,8 @@ Channel
  
 /*
  * Step 1. Builds the genome index required by the mapping process
+ * Q: How can you make this check whether the index file exists and skip the 
+ * indexing process if so?
  */
 process buildIndex {
     tag "$genome_file.baseName"
@@ -79,6 +87,24 @@ process buildIndex {
  
 /*
  * Step 2. Maps each read-pair by using Tophat2 mapper tool
+ * Q: Why do you have to mv the tophat output into the current dir?
+ *    Is that where the process looks for it's required output file?
+ * 
+ * Q: Why isn't the genome or genome index file specified in the tophat2 options?
+ * A: It is the base file name of both files that is specified.
+ * Q: What is the "genome.index" specification in the tophat2 options?
+ * A: That is the actual base file name of the genome + idx files. How does this get into the current
+ *    dir? It must be placed there by the "input: file index from genome_index" call.
+ *    Mechanically, the genome_index channel contains the "genome.index*" files. Calling
+ *    the file from the channel in the input must write the file to the working directory of
+ *    the process that calls it.
+ * Tophat docs: 
+ * Usage: tophat [options]* <genome_index_base> <reads1_1[,...,readsN_1]> [reads1_2,...readsN_2]
+ * Q: What is the "set pair_id" language do?
+ * A: set is an operator (see https://www.nextflow.io/docs/latest/operator.html#set) that
+ *    assigns a channel to a variable name. In this case, it creates a channel called pair_id
+ *    that comes from the first field of the channel created by fromFilePairs. 
+ * Q: Is pair_id a channel? Or some other kind of variable? 
  */
 process mapping {
     tag "$pair_id"
@@ -100,6 +126,7 @@ process mapping {
   
 /*
  * Step 3. Assembles the transcript by using the "cufflinks" tool
+ * Q: What does publishDir do?
  */
 process makeTranscript {
     tag "$pair_id"
