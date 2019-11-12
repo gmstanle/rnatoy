@@ -133,6 +133,7 @@ process mapping {
 /*
  * Step 3. Assembles the transcript by using the "cufflinks" tool
  * Q: Does publishDir require the directory to exist? Or will it make it?
+ * A: publishDir *will* create the directory for you (great!)
  * See https://www.nextflow.io/docs/latest/process.html?highlight=publishdir#publishdir
  */
 process makeTranscript {
