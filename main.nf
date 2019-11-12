@@ -51,9 +51,10 @@ log.info """\
 
 /*
  * the reference genome file
+ * Seems like file() is not a function, only file(). Can't find that info anywhere in the docs!
  */
-genome_file = path(params.genome)
-annotation_file = path(params.annot)
+genome_file = file(params.genome)
+annotation_file = file(params.annot)
  
 /*
  * Create the `read_pairs` channel that emits tuples containing three elements:
@@ -118,7 +119,7 @@ process mapping {
     path genome from genome_file 
     path annot from annotation_file
     path index from genome_index
-    set pair_id, path(reads) from read_pairs
+    set pair_id, file(reads) from read_pairs
  
     output:
     set pair_id, "accepted_hits.bam" into bam
@@ -141,10 +142,10 @@ process makeTranscript {
        
     input:
     path annot from annotation_file
-    set pair_id, path(bam_file) from bam
+    set pair_id, file(bam_file) from bam
      
     output:
-    set pair_id, path('transcript_*.gtf') into transcripts
+    set pair_id, file('transcript_*.gtf') into transcripts
  
     """
     cufflinks --no-update-check -q -p $task.cpus -G $annot $bam_path
