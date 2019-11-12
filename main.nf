@@ -87,8 +87,13 @@ process buildIndex {
  
 /*
  * Step 2. Maps each read-pair by using Tophat2 mapper tool
+ * The "set pair_id" call, derived from fromFilePairs,seems to be how the sample id is kept track of when 
+ * there are multiple input files per sample. The syntax is kind of weird but nicer than Snakemake!
+ *
  * Q: Why do you have to mv the tophat output into the current dir?
- *    Is that where the process looks for it's required output file?
+ *    I assume because that is where the process looks for the output file, and possibly it can
+ *    *only* look in the current dir and not in any other. It's also possible this was fixed with 
+ *    the new path qualifier.
  * 
  * Q: Why isn't the genome or genome index file specified in the tophat2 options?
  * A: It is the base file name of both files that is specified.
@@ -103,11 +108,11 @@ process buildIndex {
  * Q: What is the "set pair_id" language do?
  * A: set is an operator (see https://www.nextflow.io/docs/latest/operator.html#set) that
  *    assigns a channel to a variable name. In this case, it creates a channel called pair_id
- *    that comes from the first field of the channel created by fromFilePairs. 
+ *    that comes from the first field of the channel created by fromFilePairs. The syntax is weird though...
  * Q: Is pair_id a channel? Or some other kind of variable? 
  */
 process mapping {
-    tag "$pair_id"
+    tag "$pair_id" // tag = User provided identifier associated this task.
      
     input:
     file genome from genome_file 
@@ -126,11 +131,13 @@ process mapping {
   
 /*
  * Step 3. Assembles the transcript by using the "cufflinks" tool
- * Q: What does publishDir do?
+ * Q: Does publishDir require the directory to exist? Or will it make it?
+ * See https://www.nextflow.io/docs/latest/process.html?highlight=publishdir#publishdir
  */
 process makeTranscript {
     tag "$pair_id"
-    publishDir params.outdir, mode: 'copy'  
+    publishDir params.outdir, mode: 'copy'  // copy the output files to this directory,
+                                            // rather than only storing in process' tmp dir
        
     input:
     file annot from annotation_file
