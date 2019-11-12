@@ -74,7 +74,6 @@ Channel
  */
 process buildIndex {
     tag "$genome_file.baseName"
-    cpus 1
 
     input:
     path genome from genome_file
@@ -119,7 +118,6 @@ process buildIndex {
  */
 process mapping {
     tag "$pair_id" // tag = User provided identifier associated this task.
-    cpus 1
      
     input:
     path genome from genome_file 
@@ -147,7 +145,6 @@ process makeTranscript {
     publishDir params.outdir, mode: 'copy'  // copy the output files to this directory,
                                             // rather than only storing in process' tmp dir
        
-    cpus 1
 
     input:
     path annot from annotation_file
