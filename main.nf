@@ -148,7 +148,7 @@ process makeTranscript {
     set pair_id, file('transcript_*.gtf') into transcripts
  
     """
-    cufflinks --no-update-check -q -p $task.cpus -G $annot $bam_path
+    cufflinks --no-update-check -q -p $task.cpus -G $annot $bam_file
     mv transcripts.gtf transcript_${pair_id}.gtf
     """
 }
