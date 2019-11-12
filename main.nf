@@ -112,10 +112,13 @@ process buildIndex {
  *    that comes from the first field of the channel created by fromFilePairs. The syntax is weird though...
  * Q: Is pair_id a channel? Or some other kind of variable? 
  * Q: Where is task.cpus specified?
+ * A: It can be manually specified by the "cpus X" statement in a process, otherwise it appears to
+ *    be automatically determined by available resources. If it is set to more than available cores,
+ *    and error will be thrown.
  */
 process mapping {
     tag "$pair_id" // tag = User provided identifier associated this task.
-    cpus 16
+    cpus 1
      
     input:
     path genome from genome_file 
