@@ -111,9 +111,11 @@ process buildIndex {
  *    assigns a channel to a variable name. In this case, it creates a channel called pair_id
  *    that comes from the first field of the channel created by fromFilePairs. The syntax is weird though...
  * Q: Is pair_id a channel? Or some other kind of variable? 
+ * Q: Where is task.cpus specified?
  */
 process mapping {
     tag "$pair_id" // tag = User provided identifier associated this task.
+    cpus 16
      
     input:
     path genome from genome_file 
