@@ -37,7 +37,8 @@ params.outdir = 'results'
 
 
 /*
-* ?? What is the purpose of this?
+* This is written to the .nextflow.log.X file in the directory that the nextflow command is called
+* from (*not* $baseDir)
 */
 log.info """\
          R N A T O Y   P I P E L I N E    
