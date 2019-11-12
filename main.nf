@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2018, Centre for Genomic Regulation (CRG) and the authors.
  *
- *   This file is part of 'RNA-Toy'.
+ *   This path is part of 'RNA-Toy'.
  *
  *   RNA-Toy is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,8 +52,8 @@ log.info """\
 /*
  * the reference genome file
  */
-genome_file = file(params.genome)
-annotation_file = file(params.annot)
+genome_file = path(params.genome)
+annotation_file = path(params.annot)
  
 /*
  * Create the `read_pairs` channel that emits tuples containing three elements:
@@ -75,10 +75,10 @@ process buildIndex {
     tag "$genome_file.baseName"
     
     input:
-    file genome from genome_file
+    path genome from genome_file
      
     output:
-    file 'genome.index*' into genome_index
+    path 'genome.index*' into genome_index
        
     """
     bowtie2-build --threads ${task.cpus} ${genome} genome.index
@@ -115,10 +115,10 @@ process mapping {
     tag "$pair_id" // tag = User provided identifier associated this task.
      
     input:
-    file genome from genome_file 
-    file annot from annotation_file
-    file index from genome_index
-    set pair_id, file(reads) from read_pairs
+    path genome from genome_file 
+    path annot from annotation_file
+    path index from genome_index
+    set pair_id, path(reads) from read_pairs
  
     output:
     set pair_id, "accepted_hits.bam" into bam
@@ -140,14 +140,14 @@ process makeTranscript {
                                             // rather than only storing in process' tmp dir
        
     input:
-    file annot from annotation_file
-    set pair_id, file(bam_file) from bam
+    path annot from annotation_file
+    set pair_id, path(bam_file) from bam
      
     output:
-    set pair_id, file('transcript_*.gtf') into transcripts
+    set pair_id, path('transcript_*.gtf') into transcripts
  
     """
-    cufflinks --no-update-check -q -p $task.cpus -G $annot $bam_file
+    cufflinks --no-update-check -q -p $task.cpus -G $annot $bam_path
     mv transcripts.gtf transcript_${pair_id}.gtf
     """
 }
